@@ -32,7 +32,7 @@ trait HasMedia
         return !empty($this->media_diskname) ? $this->media_diskname : "public";
     }
     public function media(){
-        return $this->morphMany(config("hnp_media.media_model"), 'model');
+        return $this->morphMany(config("hnp-media.media_model"), 'model');
     }
     public function addMedia($file){
         // dd($this->getConversions());
