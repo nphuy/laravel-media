@@ -13,6 +13,9 @@ trait HasMedia
 {
     
     protected $conversions = [];
+    
+    protected function registerMediaConversions(): void{
+    }
     protected function addConversion(string $name, int $width, int $height){
         return $this->conversions[] = app(ConversionObject::class)->create($name, $width, $height);
     }

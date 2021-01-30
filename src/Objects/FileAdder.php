@@ -1,6 +1,5 @@
 <?php
 namespace HNP\LaravelMedia\Objects;
-use Jenssegers\Mongodb\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 use HNP\LaravelMedia\Collections\Conversion as ConversionCollection;
 use HNP\LaravelMedia\Jobs\PerformConversionsJob;
@@ -10,7 +9,7 @@ class FileAdder{
     private $file;
     private $model;
     private $conversions;
-    public function create(Model $model, $file, ConversionCollection $conversions): FileAdder{
+    public function create($model, $file, ConversionCollection $conversions): FileAdder{
         $this->model = $model;
         $this->file = $file;
         $this->conversions = $conversions;
