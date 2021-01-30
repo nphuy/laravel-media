@@ -30,6 +30,10 @@ class Media extends Model
         parent::boot();
         static::observe(app(LaravelMediaObserver::class));
     }
+    public function model()
+    {
+        return $this->morphTo();
+    }
     public function getPath(){
         $id = $this->id;
         $file_name = $this->file_name;
@@ -39,6 +43,7 @@ class Media extends Model
         $id = $this->id;
         $file_name = $this->file_name;
         if(!empty($coversion_name)){
+
             $custom_properties = $this->custom_properties;
             // dd($custom_properties['generated_conversions']);
             if(!empty($custom_properties['generated_conversions']) && !empty($custom_properties['generated_conversions'][$coversion_name])){

@@ -37,21 +37,23 @@ class PerformConversionsJob implements ShouldQueue
         $conversion = $this->conversion;
         $id = $media->id;
         $file_name = $media->file_name;
-
+        $conversion_name = $conversion->getName();
+        $conversion_width = $conversion->getWidth();
+        $conversion_height = $conversion->getHeight();
         
-        $image = Image::make(Storage::disk($media->disk)->get(("{$id}/{$file_name}")))->fit($conversion["width"], $conversion["height"], function ($constraint) {
+        $image = Image::make(Storage::disk($media->disk)->get(("{$id}/{$file_name}")))->fit($conversion_width, $conversion_height, function ($constraint) {
             $constraint->upsize();
         })->stream();
-        $new_filename = "{$media->name}_{$conversion['name']}.{$media->extension}";
+        $new_filename = "{$media->name}_{$conversion_name}.{$media->extension}";
         Storage::disk($media->disk)->put("{$media->id}/conversions/{$new_filename}", $image);
         $custom_properties = $media->custom_properties;
         if(!empty($custom_properties['generated_conversions'])){
             $generated_conversions = $custom_properties['generated_conversions'];
-            $generated_conversions[$conversion['name']] = true;
+            $generated_conversions[$conversion_name] = true;
             $custom_properties['generated_conversions'] = $generated_conversions;
         }
         else{
-            $custom_properties['generated_conversions'][$conversion['name']] = true;
+            $custom_properties['generated_conversions'][$conversion_name] = true;
         }
         $media->custom_properties = $custom_properties;
         $media->save();

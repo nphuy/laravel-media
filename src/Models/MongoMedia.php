@@ -8,6 +8,7 @@ use Jenssegers\Mongodb\Eloquent\Model as Eloquent;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image as Image;
 use HNP\LaravelMedia\LaravelMediaObserver;
+use Jenssegers\Mongodb\Relations\MorphTo;
 
 class MongoMedia extends Eloquent
 {
@@ -28,6 +29,10 @@ class MongoMedia extends Eloquent
 	{
         parent::boot();
         static::observe(app(LaravelMediaObserver::class));
+    }
+    public function model()
+    {
+        return $this->morphTo();
     }
     public function getPath(){
         $id = $this->id;

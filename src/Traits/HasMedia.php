@@ -7,21 +7,18 @@ use Illuminate\Support\Facades\Storage;
 use HNP\LaravelMedia\Collections\Media as MediaCollection;
 use HNP\LaravelMedia\Collections\Conversion as ConversionCollection;
 use HNP\LaravelMedia\Objects\FileAdder;
-
+use HNP\LaravelMedia\Objects\Conversion as ConversionObject;
 
 trait HasMedia
 {
     
     protected $conversions = [];
     protected function addConversion(string $name, int $width, int $height){
-        return $this->conversions[] = [
-            "name"=>$name,
-            "width"=>$width,
-            "height"=>$height
-        ];
+        return $this->conversions[] = app(ConversionObject::class)->create($name, $width, $height);
     }
     public function getConversions(){
         $this->registerMediaConversions();
+        // dd($this->conversions);
         return new ConversionCollection($this->conversions);
     }
     public function newCollection(array $models = [])

@@ -4,6 +4,7 @@ use Jenssegers\Mongodb\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 use HNP\LaravelMedia\Collections\Conversion as ConversionCollection;
 use HNP\LaravelMedia\Jobs\PerformConversionsJob;
+use \HNP\LaravelMedia\Exceptions\DiskDoesNotExist;
 
 class FileAdder{
     private $file;
@@ -17,13 +18,13 @@ class FileAdder{
     }
     public function toMediaCollection($collection = "default"){
         
-        $disk_name = config("hnp_media.disk_name");
+        $disk_name = config("hnp-media.disk_name");
         $file = $this->file;
         $model = $this->model;
         if(empty(config("filesystems.disks.{$disk_name}"))){
-            return false;
+            throw DiskDoesNotExist::create($disk_name);
         }
-        $mediaClass = config('hnp_media.media_model');
+        $mediaClass = config('hnp-media.media_model');
         $media = new $mediaClass();
         $file_name = $file->getClientOriginalName();
         $extension = $file->extension();
@@ -50,7 +51,8 @@ class FileAdder{
     protected function performConversions($media){
         $conversions = $this->conversions;
         foreach($conversions as $conversion){
-            PerformConversionsJob::dispatch($media, $conversion);
+            if($conversion->getCollectionName() == $media->collection_name)
+                PerformConversionsJob::dispatch($media, $conversion);
         }
     }
 }
