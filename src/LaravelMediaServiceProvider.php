@@ -3,6 +3,7 @@
 namespace HNP\LaravelMedia;
 
 use Illuminate\Support\ServiceProvider;
+use HNP\LaravelMedia\Commands\Regenerate as RegenarateCommand;
 
 class LaravelMediaServiceProvider extends ServiceProvider
 {
@@ -14,6 +15,10 @@ class LaravelMediaServiceProvider extends ServiceProvider
     public function register()
     {
         $this->mergeConfigFrom(__DIR__ . '/config/hnp-media.php', 'hnp-media');
+        $this->app->bind('command.laravel-media:regenerate', RegenarateCommand::class);
+        $this->commands([
+            'command.laravel-media:regenerate',
+        ]);
     }
 
     /**

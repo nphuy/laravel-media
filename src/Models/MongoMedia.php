@@ -9,10 +9,12 @@ use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image as Image;
 use HNP\LaravelMedia\LaravelMediaObserver;
 use Jenssegers\Mongodb\Relations\MorphTo;
+use HNP\LaravelMedia\Traits\Regenerate as RegenerateTrait;
 
 class MongoMedia extends Eloquent
 {
     use HasFactory;
+    use RegenerateTrait;
     protected $collection = 'media';
     protected $casts = [
         'custom_properties' => 'array',
@@ -34,11 +36,20 @@ class MongoMedia extends Eloquent
     {
         return $this->morphTo();
     }
+    public function destroyConversionFolder(){
+        $id = $this->id;
+        if( Storage::disk($this->disk)->exists("{$id}/conversions")){
+            Storage::disk($this->disk)->deleteDirectory("{$id}/conversions");
+            // Storage::disk($this->disk)->makeDirectory("{$id}/conversions");
+        }
+        
+    }
     public function getPath(){
         $id = $this->id;
         $file_name = $this->file_name;
         return Storage::disk($this->disk)->path("{$id}/{$file_name}");
     }
+
     public function getFullUrl($coversion_name = null){
         $id = $this->id;
         $file_name = $this->file_name;

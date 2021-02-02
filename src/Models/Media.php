@@ -34,6 +34,18 @@ class Media extends Model
     {
         return $this->morphTo();
     }
+    public function destroyConversionFolder(){
+        $id = $this->id;
+        if( Storage::disk($this->disk)->exists("{$id}/conversions")){
+            Storage::disk($this->disk)->deleteDirectory("{$id}/conversions");
+            // Storage::disk($this->disk)->makeDirectory("{$id}/conversions");
+        }
+        
+    }
+    public function getConversionPath(){
+        $id = $this->id;
+        return Storage::disk($this->disk)->path("{$id}/conversions");
+    }
     public function getPath(){
         $id = $this->id;
         $file_name = $this->file_name;

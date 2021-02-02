@@ -6,16 +6,16 @@ class Conversion
     private $name;
     private $width;
     private $height;
-    private $collection = 'default';
+    public $collection = 'default';
 
     public function getName(){
         return $this->name;
     }
     public function getWidth(){
-        return $this->height;
+        return $this->width;
     }
     public function getHeight(){
-        return $this->width;
+        return $this->height;
     }
     public function getCollectionName(){
         return $this->collection;

@@ -63,8 +63,10 @@ trait HasMedia
         if (!Str::contains($filename, '.')) {
             $filename = "{$filename}.{$mediaExtension[1]}";
         }
+        
+        $file_path = basename(parse_url($url)['path']);
         return app(FileAdder::class)
-            ->create($this, app(UrlFile::class)->create($temporaryFile,  $filename, pathinfo($url, PATHINFO_EXTENSION)), $this->getConversions());
+            ->create($this, app(UrlFile::class)->create($temporaryFile,  $filename, pathinfo($file_path, PATHINFO_EXTENSION)), $this->getConversions());
     }
 
     protected function guardAgainstInvalidMimeType(string $file, ...$allowedMimeTypes)

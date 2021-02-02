@@ -9,6 +9,8 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image as Image;
+use Illuminate\Support\Facades\Log;
+
 
 class PerformConversionsJob implements ShouldQueue
 {
@@ -46,6 +48,7 @@ class PerformConversionsJob implements ShouldQueue
         })->stream();
         $new_filename = "{$media->name}_{$conversion_name}.{$media->extension}";
         Storage::disk($media->disk)->put("{$media->id}/conversions/{$new_filename}", $image);
+        // Log::info("{$media->id}/conversions/{$new_filename}");
         $custom_properties = $media->custom_properties;
         if(!empty($custom_properties['generated_conversions'])){
             $generated_conversions = $custom_properties['generated_conversions'];

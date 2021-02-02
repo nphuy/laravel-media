@@ -8,7 +8,7 @@ use HNP\LaravelMedia\Exceptions\UnknownType;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use HNP\LaravelMedia\Objects\UrlFile;
 
-class FileAdder{
+class FileAdder {
     private $file;
     private $model;
     private $conversions;
