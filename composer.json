@@ -1,6 +1,7 @@
 {
   "name": "hnp/laravel-media",
   "description": "Simple associate files with Laravel eloquent models",
+  "license": "MIT",
   "authors": [
     {
       "name": "Huy Nguyen",
