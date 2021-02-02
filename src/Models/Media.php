@@ -8,10 +8,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image as Image;
 use HNP\LaravelMedia\LaravelMediaObserver;
+use HNP\LaravelMedia\Collections\Media as MediaCollection;
+use HNP\LaravelMedia\Media as MediaInteface;
+use HNP\LaravelMedia\Traits\Regenerate as RegenerateTrait;
 
-class Media extends Model
+class Media extends Model implements MediaInteface
 {
-    use HasFactory;
+    use HasFactory, RegenerateTrait;
     protected $table = 'media';
 
     protected $casts = [
@@ -30,11 +33,15 @@ class Media extends Model
         parent::boot();
         static::observe(app(LaravelMediaObserver::class));
     }
+    public function newCollection(array $models = [])
+    {
+        return new MediaCollection($models, self::class);
+    }
     public function model()
     {
         return $this->morphTo();
     }
-    public function destroyConversionFolder(){
+    public function destroyConversionFolder(): void{
         $id = $this->id;
         if( Storage::disk($this->disk)->exists("{$id}/conversions")){
             Storage::disk($this->disk)->deleteDirectory("{$id}/conversions");
@@ -42,16 +49,16 @@ class Media extends Model
         }
         
     }
-    public function getConversionPath(){
+    public function getConversionPath(): string{
         $id = $this->id;
         return Storage::disk($this->disk)->path("{$id}/conversions");
     }
-    public function getPath(){
+    public function getPath(): string{
         $id = $this->id;
         $file_name = $this->file_name;
         return Storage::disk($this->disk)->path("{$id}/{$file_name}");
     }
-    public function getFullUrl($coversion_name = null){
+    public function getFullUrl(string $coversion_name = null): string{
         $id = $this->id;
         $file_name = $this->file_name;
         if(!empty($coversion_name)){
@@ -66,16 +73,5 @@ class Media extends Model
         }
         return Storage::disk($this->disk)->url("{$id}/{$file_name}");
     }
-    public function crop($size){
-        $id = $this->id;
-        $file_name = $this->file_name;
-
-        
-        $image = Image::make(Storage::disk($this->disk)->get(("{$id}/{$file_name}")))->fit($size["width"], $size["height"], function ($constraint) {
-            $constraint->upsize();
-        })->stream();
-        $new_filename = "{$this->name}_{$size['name']}.{$this->extension}";
-        Storage::disk($this->disk)->put("{$this->id}/conversions/{$new_filename}", $image);
-        return $this;
-    }
+    
 }

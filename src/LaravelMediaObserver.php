@@ -2,9 +2,13 @@
 
 namespace HNP\LaravelMedia;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class LaravelMediaObserver{
 
+    public function creating($media){
+        $media->uuid = (string) Str::uuid();
+    }
     public function created($media)
     {
         

@@ -14,34 +14,65 @@ use HNP\LaravelMedia\Exceptions\InvalidUrl;
 use HNP\LaravelMedia\Downloaders\DefaultDownloader;
 use HNP\LaravelMedia\Exceptions\MimeTypeNotAllowed;
 use HNP\LaravelMedia\Objects\UrlFile;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Jenssegers\Mongodb\Eloquent\SoftDeletes as MongoSoftDeletes;
+use HNP\LaravelMedia\HasMedia;
+use HNP\LaravelMedia\Media as MediaInteface;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-trait HasMedia
+trait InteractsWithMedia
 {
     
     protected $conversions = [];
-    
-    protected function registerMediaConversions(): void{
+    protected bool $deletePreservingMedia = false;
+
+    public static function bootInteractsWithMedia()
+    {
+        static::deleting(function (HasMedia $model) {
+            if ($model->shouldDeletePreservingMedia()) {
+                return;
+            }
+            // dd(class_uses_recursive($model));
+            if (in_array(SoftDeletes::class, class_uses_recursive($model))) {
+                if (!$model->forceDeleting) {
+                    return;
+                }
+            }
+
+            $model->media()->cursor()->each(fn (MediaInteface $media) => $media->delete());
+        });
+    }
+    public function deletePreservingMedia(): bool
+    {
+        $this->deletePreservingMedia = true;
+
+        return $this->delete();
+    }
+    public function shouldDeletePreservingMedia(): bool
+    {
+        return $this->deletePreservingMedia ?? false;
+    }
+    public function registerMediaConversions(): void{
     }
     protected function addConversion(string $name, int $width, int $height){
+        // dd($this->conversions[] = app(ConversionObject::class)->create($name, $width, $height));
         return $this->conversions[] = app(ConversionObject::class)->create($name, $width, $height);
     }
-    public function getConversions(){
+    public function getConversions(): ConversionCollection{
         $this->registerMediaConversions();
         // dd($this->conversions);
         return new ConversionCollection($this->conversions);
     }
-    public function newCollection(array $models = [])
-    {
-         return new MediaCollection($models, self::class);
-    }
+    
     protected function getDiskName(){
         return !empty($this->media_diskname) ? $this->media_diskname : "public";
     }
     public function media(){
         return $this->morphMany(config("hnp-media.media_model"), 'model');
     }
-    public function addMedia($file){
+    public function addMedia(UploadedFile $file): FileAdder{
         // dd($this->getConversions());
+        // dd($file);
         return app(FileAdder::class)->create($this, $file, $this->getConversions());
     }
 
@@ -87,10 +118,10 @@ trait HasMedia
         }
     }
 
-    public function getFirstMedia($collection = "default"){
+    public function getFirstMedia($collection = "default"): ?MediaInteface{
         return $this->media()->whereCollectionName($collection)->first();
     }
-    public function getMedia($collection = "default"){
+    public function getMedia($collection = "default"): MediaCollection{
         $models = $this->media()->whereCollectionName($collection)->get();
         return new MediaCollection($models, self::class);
     }

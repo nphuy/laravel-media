@@ -47,6 +47,9 @@ class PerformConversionsJob implements ShouldQueue
             $constraint->upsize();
         })->stream();
         $new_filename = "{$media->name}_{$conversion_name}.{$media->extension}";
+        if(!Storage::disk($media->disk)->exists("{$media->id}/conversions")){
+            Storage::disk($media->disk)->makeDirectory("{$media->id}/conversions", 0777) ;
+        }
         Storage::disk($media->disk)->put("{$media->id}/conversions/{$new_filename}", $image);
         // Log::info("{$media->id}/conversions/{$new_filename}");
         $custom_properties = $media->custom_properties;

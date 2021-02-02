@@ -22,12 +22,11 @@ class Regenerate extends Command
         if (! $this->confirmToProceed()) {
             return;
         }
-        $mediaClass = config("hnp-media.media_model");
         $mediaFiles = $this->getMediaToBeRegenerated();
         $progressBar = $this->output->createProgressBar($mediaFiles->count());
         $mediaFiles->each(function ($media) use ($progressBar) {
             $progressBar->advance();
-            sleep(1);
+            $media->regenerate();
         });
         $progressBar->finish();
         $this->info('All done!');

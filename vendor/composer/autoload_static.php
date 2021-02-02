@@ -6,6 +6,20 @@ namespace Composer\Autoload;
 
 class ComposerStaticInit4a45b9cea8459fb9f18f31c2e68cce41
 {
+    public static $prefixLengthsPsr4 = array (
+        'H' => 
+        array (
+            'HNP\\LaravelMedia\\' => 17,
+        ),
+    );
+
+    public static $prefixDirsPsr4 = array (
+        'HNP\\LaravelMedia\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/src',
+        ),
+    );
+
     public static $classMap = array (
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
     );
@@ -13,6 +27,8 @@ class ComposerStaticInit4a45b9cea8459fb9f18f31c2e68cce41
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
+            $loader->prefixLengthsPsr4 = ComposerStaticInit4a45b9cea8459fb9f18f31c2e68cce41::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit4a45b9cea8459fb9f18f31c2e68cce41::$prefixDirsPsr4;
             $loader->classMap = ComposerStaticInit4a45b9cea8459fb9f18f31c2e68cce41::$classMap;
 
         }, null, ClassLoader::class);

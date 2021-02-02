@@ -9,4 +9,7 @@ class Media extends \Illuminate\Database\Eloquent\Collection
         $this->instance = $instance;
         parent::__construct($items);
     }
+    public function uuids(){
+        return new MediaCollection($this->pluck("uuid"));
+    }
 }
