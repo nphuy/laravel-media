@@ -8,11 +8,14 @@ use Illuminate\Http\File;
 use Illuminate\Support\Facades\Storage;
 use HNP\LaravelMedia\Collections\Media as MediaCollection;
 use HNP\LaravelMedia\Collections\Conversion as ConversionCollection;
+use HNP\LaravelMedia\Collections\Watermark as WatermarkCollection;
 use HNP\LaravelMedia\Objects\FileAdder;
 use HNP\LaravelMedia\Objects\Conversion as ConversionObject;
+use HNP\LaravelMedia\Objects\Watermark as WatermarkObject;
 use HNP\LaravelMedia\Exceptions\InvalidUrl;
 use HNP\LaravelMedia\Downloaders\DefaultDownloader;
 use HNP\LaravelMedia\Exceptions\MimeTypeNotAllowed;
+use HNP\LaravelMedia\Exceptions\WatermarkPositionNotExitst;
 use HNP\LaravelMedia\Objects\UrlFile;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Jenssegers\Mongodb\Eloquent\SoftDeletes as MongoSoftDeletes;
@@ -24,7 +27,9 @@ trait InteractsWithMedia
 {
     
     protected $conversions = [];
+    protected $watermarks = [];
     protected bool $deletePreservingMedia = false;
+    protected static array $watermark_positions = ["top-left", "top", "top-right", "left", "center", "right", "bottom-left", "bottom", "bottom-right"];
 
     public static function bootInteractsWithMedia()
     {
@@ -58,10 +63,24 @@ trait InteractsWithMedia
         // dd($this->conversions[] = app(ConversionObject::class)->create($name, $width, $height));
         return $this->conversions[] = app(ConversionObject::class)->create($name, $width, $height);
     }
+
+    protected function addWatermark(string $position, int $x, int $y){
+        if(!in_array($position, self::$watermark_positions))
+            throw WatermarkPositionNotExitst::create($position);
+        return $this->watermarks[] = app(WatermarkObject::class)->create($position, $x, $y);
+    }
     public function getConversions(): ConversionCollection{
-        $this->registerMediaConversions();
-        // dd($this->conversions);
         return new ConversionCollection($this->conversions);
+    }
+    public function getWatermarks(): WatermarkCollection{
+        return new WatermarkCollection($this->watermarks);
+    }
+
+    public function getMediaConversions(){
+        $this->registerMediaConversions();
+        $conversions= $this->getConversions();
+        $watermark = $this->getWatermarks()->first();
+        return compact("conversions", "watermark");
     }
     
     protected function getDiskName(){
@@ -73,7 +92,7 @@ trait InteractsWithMedia
     public function addMedia(UploadedFile $file): FileAdder{
         // dd($this->getConversions());
         // dd($file);
-        return app(FileAdder::class)->create($this, $file, $this->getConversions());
+        return app(FileAdder::class)->create($this, $file, $this->getMediaConversions());
     }
 
     public function addMediaFromUrl(string $url, ...$allowedMimeTypes): FileAdder
@@ -97,7 +116,7 @@ trait InteractsWithMedia
         
         $file_path = basename(parse_url($url)['path']);
         return app(FileAdder::class)
-            ->create($this, app(UrlFile::class)->create($temporaryFile,  $filename, pathinfo($file_path, PATHINFO_EXTENSION)), $this->getConversions());
+            ->create($this, app(UrlFile::class)->create($temporaryFile,  $filename, pathinfo($file_path, PATHINFO_EXTENSION)), $this->getMediaConversions());
     }
 
     protected function guardAgainstInvalidMimeType(string $file, ...$allowedMimeTypes)
