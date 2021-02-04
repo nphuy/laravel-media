@@ -76,10 +76,14 @@ trait InteractsWithMedia
         return new WatermarkCollection($this->watermarks);
     }
 
+    public function getWatermark(){
+        return $this->getWatermarks()->first();
+    }
+
     public function getMediaConversions(){
         $this->registerMediaConversions();
         $conversions= $this->getConversions();
-        $watermark = $this->getWatermarks()->first();
+        $watermark = $this->getWatermark();
         return compact("conversions", "watermark");
     }
     

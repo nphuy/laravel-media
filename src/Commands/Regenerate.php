@@ -25,8 +25,11 @@ class Regenerate extends Command
         $mediaFiles = $this->getMediaToBeRegenerated();
         $progressBar = $this->output->createProgressBar($mediaFiles->count());
         $mediaFiles->each(function ($media) use ($progressBar) {
+            try{
+                $media->regenerate();
+            }catch(Exception $e){}
             $progressBar->advance();
-            $media->regenerate();
+           
         });
         $progressBar->finish();
         $this->info('All done!');

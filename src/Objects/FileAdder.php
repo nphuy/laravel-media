@@ -39,7 +39,7 @@ class FileAdder {
     protected function getDiskName(){
         return $this->disk_name;
     }
-    public function toMediaCollection($collection = 'default', ?string $disk_name = null){
+    public function toCollection($collection = 'default', ?string $disk_name = null){
         $this->setDiskName($disk_name);
         $file = $this->file;
         if ($file instanceof UrlFile) {
