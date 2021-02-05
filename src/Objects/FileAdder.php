@@ -132,13 +132,17 @@ class FileAdder {
     }
     protected function addWatermark($media){
         $watermark = $this->watermark;
-        $id = $media->id;
-        $file_name = $media->original_name;
-        $disk_name = $media->disk;
-        $img = Image::make(Storage::disk($media->disk)->get(("{$id}/{$file_name}")));
-        $new_image = $img->insert($watermark->getPath(), $watermark->getPosition(),$watermark->getX(), $watermark->getY())->stream();
-        // dd($new_image);
-        Storage::disk($disk_name)->put("{$media->id}/{$media->file_name}", $new_image);
+        // dd($watermark, $media);
+        if($watermark->collection == $media->collection_name){
+            $id = $media->id;
+            $file_name = $media->original_name;
+            $disk_name = $media->disk;
+            $img = Image::make(Storage::disk($media->disk)->get(("{$id}/{$file_name}")));
+            $new_image = $img->insert($watermark->getPath(), $watermark->getPosition(),$watermark->getX(), $watermark->getY())->stream();
+            // dd($new_image);
+            Storage::disk($disk_name)->put("{$media->id}/{$media->file_name}", $new_image);
+        }
+        
     }
     protected function performConversions($media){
         $conversions = $this->conversions;
