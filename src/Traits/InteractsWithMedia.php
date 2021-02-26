@@ -142,10 +142,10 @@ trait InteractsWithMedia
     }
 
     public function getFirstMedia($collection = "default"): ?MediaInteface{
-        return $this->media()->whereCollectionName($collection)->first();
+        return $this->media->where("collection_name", $collection)->first();
     }
     public function getMedia($collection = "default"): MediaCollection{
-        $models = $this->media()->whereCollectionName($collection)->get();
+        $models = $this->media->where("collection_name",$collection);
         return new MediaCollection($models, self::class);
     }
 }
